@@ -1,0 +1,32 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Launch in Chrome",
+            "file": "$Quiz/index.html" // Update 'index.html' if your file has a different name.
+        },
+        {
+            "type": "firefox",
+            "request": "launch",
+            "name": "Launch in Firefox",
+            "file": "$Quiz/index.html" // Update 'index.html' if your file has a different name.
+        },
+        {
+            "type": "msedge", // Use "msedge" for the Microsoft Edge debugger extension
+            "request": "launch",
+            "name": "Launch in Edge",
+            "file": "$Quiz/index.html" // Update 'index.html' if your file has a different name.
+        },
+        {
+            "type": "safari", // Use "safari" for the Safari debugger extension (primarily for macOS)
+            "request": "launch",
+            "name": "Launch in Safari",
+            "file": "$Quiz/index.html" // Update 'index.html' if your file has a different name.
+        }
+    ]
+}
