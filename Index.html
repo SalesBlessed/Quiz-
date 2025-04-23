@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); /* Gradient background */
+            color: #e2e8f0; /* Light text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .quiz-container {
+            background-color: #2d3748; /* Slightly lighter dark */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6); /* Stronger shadow */
+            width: 100%;
+            max-width: 700px; /* Increased max width */
+            text-align: center;
+            border: 1px solid #4a5568; /* Subtle border */
+        }
+        h1 {
+            color: #90cdf4; /* Light blue heading */
+            margin-bottom: 25px;
+        }
+        .question-area {
+            margin-bottom: 25px;
+        }
+        #question-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #4a5568;
+        }
+        .question {
+            margin-bottom: 20px;
+            font-size: 1.3em; /* Slightly larger font */
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+        .options {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .option-button {
+            background-color: #4a5568; /* Darker option background */
+            color: #e2e8f0;
+            padding: 14px 20px; /* Increased padding */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em; /* Slightly larger font */
+            transition: background-color 0.3s ease, transform 0.1s ease; /* Added transform */
+            text-align: left;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Subtle shadow on buttons */
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #636b6f; /* Hover effect */
+            transform: translateY(-2px); /* Slight lift on hover */
+        }
+        .option-button:active:not(:disabled) {
+             transform: translateY(0); /* Press effect */
+        }
+        .option-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.8; /* Slightly less opaque when disabled */
+        }
+        .option-button.correct {
+            background-color: #48bb78; /* Green for correct */
+            color: #1a202c;
+            font-weight: bold;
+        }
+        .option-button.wrong {
+            background-color: #f56565; /* Red for wrong */
+            color: #1a202c;
+            font-weight: bold;
+        }
+         .option-button.selected {
+            border: 2px solid #90cdf4; /* Highlight selected */
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .control-button {
+            background-color: #667eea; /* Blue button */
+            color: white;
+            padding: 12px 25px; /* Increased padding */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .control-button:hover:not(:disabled) {
+            background-color: #5a67d8; /* Darker blue hover */
+            transform: translateY(-2px);
+        }
+         .control-button:active:not(:disabled) {
+             transform: translateY(0);
+        }
+        .control-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .score-area {
+            display: flex;
+            flex-direction: column; /* Stack scores vertically on small screens */
+            align-items: flex-end; /* Align scores to the right */
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #90cdf4; /* Light blue score text */
+        }
+        .score {
+            margin-bottom: 5px; /* Space between scores */
+        }
+        .timer {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #f6e05e; /* Yellow timer text */
+            margin-bottom: 15px;
+        }
+        .hidden {
+            display: none;
+        }
+        #result-area {
+            padding-top: 20px;
+            border-top: 1px solid #4a5568;
+        }
+        #result-area h2 {
+             color: #90cdf4;
+             margin-bottom: 15px;
+        }
+        #final-score {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #48bb78; /* Green for final score */
+        }
+
+         /* Responsive adjustments */
+        @media (min-width: 600px) {
+            .score-area {
+                flex-direction: row; /* Row layout on larger screens */
+                gap: 20px; /* Space between scores */
+                align-items: center; /* Align scores horizontally */
+            }
+             .score {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1 class="text-3xl font-bold">Space Quiz</h1>
+
+        <div id="quiz-area">
+             <div id="timer" class="timer">Time: --</div>
+             <div class="question-area">
+                <img id="question-image" src="" alt="Space related image" class="hidden">
+                <div id="question" class="question"></div>
+             </div>
+            <div id="options" class="options">
+                </div>
+            <div class="controls">
+                <button id="next-button" class="control-button hidden">Next Question</button>
+                <div class="score-area">
+                     <div id="current-score" class="score">Round Score: 0</div>
+                     <div id="total-score" class="score">Total Score: 0</div>
+                     <div id="rounds-played" class="score">Rounds Played: 0</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="result-area" class="hidden">
+            <h2 class="text-2xl font-bold">Quiz Complete!</h2>
+            <div id="final-score" class="score mb-6"></div>
+            <button id="restart-button" class="control-button">Play Another Round</button>
+        </div>
+    </div>
+
+    <script>
+        // Array of quiz questions with added questions and image placeholders
+        const questions = [
+            {
+                question: "What is the largest planet in our solar system?",
+                options: ["Earth", "Mars", "Jupiter", "Saturn"],
+                answer: "Jupiter",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Jupiter" // Placeholder image
+            },
+            {
+                question: "What is the name of our galaxy?",
+                options: ["Andromeda", "Milky Way", "Triangulum", "Centaurus A"],
+                answer: "Milky Way",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Milky+Way" // Placeholder image
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                options: ["Venus", "Mars", "Mercury", "Uranus"],
+                answer: "Mars",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Mars" // Placeholder image
+            },
+            {
+                question: "What celestial body is a large, glowing ball of plasma that produces energy through nuclear fusion?",
+                options: ["Planet", "Moon", "Star", "Asteroid"],
+                answer: "Star",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Star" // Placeholder image
+            },
+            {
+                question: "What is a black hole?",
+                options: ["A type of star", "A region of spacetime where gravity is so strong that nothing, including light, can escape", "A large cloud of gas and dust", "A small, rocky object orbiting the Sun"],
+                answer: "A region of spacetime where gravity is so strong that nothing, including light, can escape",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Black+Hole" // Placeholder image
+            },
+             {
+                question: "Which is the smallest planet in our solar system?",
+                options: ["Earth", "Mars", "Mercury", "Venus"],
+                answer: "Mercury",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Mercury" // Placeholder image
+            },
+            {
+                question: "What is the name of the first artificial satellite launched into space?",
+                options: ["Explorer 1", "Vanguard 1", "Sputnik 1", "Luna 1"],
+                answer: "Sputnik 1",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Sputnik+1" // Placeholder image
+            },
+            {
+                question: "Which moon in our solar system is known for its potential subsurface ocean?",
+                options: ["Titan (Saturn)", "Ganymede (Jupiter)", "Europa (Jupiter)", "Triton (Neptune)"],
+                answer: "Europa (Jupiter)",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Europa" // Placeholder image
+            },
+             {
+                question: "What is the term for a celestial event where one celestial body passes in front of another?",
+                options: ["Eclipse", "Transit", "Occultation", "All of the above"],
+                answer: "All of the above",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=Eclipse+or+Transit" // Placeholder image
+            },
+            {
+                question: "What is the primary composition of the Sun?",
+                options: ["Rock and Iron", "Water and Ice", "Hydrogen and Helium", "Carbon and Oxygen"],
+                answer: "Hydrogen and Helium",
+                image: "https://placehold.co/600x300/4a5568/e2e8f0?text=The+Sun" // Placeholder image
+            }
+        ];
+
+        const TIME_PER_QUESTION = 15; // Time in seconds per question
+
+        let currentQuestionIndex = 0;
+        let currentRoundScore = 0; // Score for the current round
+        let totalScore = 0; // Score across all rounds in this session
+        let roundsPlayed = 0; // Number of rounds played in this session
+        let answerSelected = false; // Flag to prevent multiple selections per question
+        let timer; // Variable to hold the timer interval
+        let timeLeft; // Variable to hold the remaining time
+
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const nextButton = document.getElementById('next-button');
+        const currentScoreElement = document.getElementById('current-score');
+        const totalScoreElement = document.getElementById('total-score');
+        const roundsPlayedElement = document.getElementById('rounds-played');
+        const quizArea = document.getElementById('quiz-area');
+        const resultArea = document.getElementById('result-area');
+        const finalScoreElement = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        const timerElement = document.getElementById('timer');
+        const questionImageElement = document.getElementById('question-image');
+
+
+        // Function to start the timer
+        function startTimer() {
+            timeLeft = TIME_PER_QUESTION;
+            timerElement.textContent = `Time: ${timeLeft}`;
+            timer = setInterval(() => {
+                timeLeft--;
+                timerElement.textContent = `Time: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    // Automatically move to the next question if time runs out
+                    // Mark as wrong if no answer was selected
+                    if (!answerSelected) {
+                         // Optionally highlight the correct answer when time runs out
+                        const currentQuestion = questions[currentQuestionIndex];
+                        Array.from(optionsElement.children).forEach(btn => {
+                            btn.disabled = true; // Disable all buttons
+                            if (btn.textContent === currentQuestion.answer) {
+                                btn.classList.add('correct');
+                            }
+                        });
+                         nextButton.classList.remove('hidden'); // Show next button
+                    } else {
+                         // If an answer was selected just before time ran out,
+                         // the selectAnswer function would have already handled showing the next button.
+                    }
+                     // Move to the next question after a brief delay to show the result
+                     setTimeout(nextQuestion, 1000); // Wait 1 second before moving on
+                }
+            }, 1000); // Update every 1 second
+        }
+
+        // Function to stop the timer
+        function stopTimer() {
+            clearInterval(timer);
+        }
+
+        // Function to load a question
+        function loadQuestion() {
+            stopTimer(); // Stop timer from previous question
+            answerSelected = false; // Reset flag for new question
+            const currentQuestion = questions[currentQuestionIndex];
+            questionElement.textContent = currentQuestion.question;
+            optionsElement.innerHTML = ''; // Clear previous options
+
+            // Load and display image if available
+            if (currentQuestion.image) {
+                questionImageElement.src = currentQuestion.image;
+                questionImageElement.classList.remove('hidden');
+                 // Add error handling for image loading
+                questionImageElement.onerror = () => {
+                    console.error("Failed to load image:", currentQuestion.image);
+                    questionImageElement.classList.add('hidden'); // Hide image if it fails to load
+                };
+            } else {
+                questionImageElement.classList.add('hidden'); // Hide image element if no image for question
+            }
+
+
+            currentQuestion.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-button');
+                button.addEventListener('click', () => selectAnswer(option, button));
+                optionsElement.appendChild(button);
+            });
+
+            nextButton.classList.add('hidden'); // Hide next button until answer is selected
+            startTimer(); // Start timer for the new question
+        }
+
+        // Function to handle answer selection
+        function selectAnswer(selectedOption, button) {
+            if (answerSelected) return; // Prevent multiple selections
+
+            stopTimer(); // Stop the timer once an answer is selected
+            answerSelected = true; // Set flag
+            const currentQuestion = questions[currentQuestionIndex];
+            const isCorrect = selectedOption === currentQuestion.answer;
+
+            // Highlight selected button
+            button.classList.add('selected'); // Add a class to indicate selection
+
+            // Highlight correct/wrong after a short delay to show selection first
+            setTimeout(() => {
+                 button.classList.remove('selected'); // Remove selection highlight
+                 button.classList.add(isCorrect ? 'correct' : 'wrong');
+
+                 // Also highlight the correct answer if the selected one was wrong
+                 if (!isCorrect) {
+                     Array.from(optionsElement.children).forEach(btn => {
+                         if (btn.textContent === currentQuestion.answer) {
+                             btn.classList.add('correct');
+                         }
+                     });
+                 }
+
+                // Disable all option buttons after selection
+                Array.from(optionsElement.children).forEach(btn => btn.disabled = true);
+
+                if (isCorrect) {
+                    currentRoundScore++;
+                    currentScoreElement.textContent = `Round Score: ${currentRoundScore}`;
+                }
+
+                nextButton.classList.remove('hidden'); // Show next button
+            }, 300); // Short delay
+
+
+        }
+
+        // Function to load the next question or end the quiz
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                endQuiz();
+            }
+        }
+
+        // Function to end the quiz
+        function endQuiz() {
+            stopTimer(); // Ensure timer is stopped
+            quizArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            finalScoreElement.textContent = `You scored ${currentRoundScore} out of ${questions.length} in this round!`;
+
+            // Update total score and rounds played
+            totalScore += currentRoundScore;
+            roundsPlayed++;
+            totalScoreElement.textContent = `Total Score: ${totalScore}`;
+            roundsPlayedElement.textContent = `Rounds Played: ${roundsPlayed}`;
+        }
+
+        // Function to restart the quiz (start a new round)
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            currentRoundScore = 0; // Reset current round score
+            currentScoreElement.textContent = `Round Score: ${currentRoundScore}`;
+
+            quizArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            loadQuestion(); // Start the quiz again
+        }
+
+        // Event listeners
+        nextButton.addEventListener('click', nextQuestion);
+        restartButton.addEventListener('click', restartQuiz);
+
+        // Initial load
+        loadQuestion();
+
+    </script>
+</body>
+</html>
